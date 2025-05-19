@@ -1,14 +1,13 @@
 {
   "name": "yelp-business-search",
   "version": "1.0.0",
+  "author": "George Dover",
+  "description": "A fullstack application displaying Yelp business search results.",
+  "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
