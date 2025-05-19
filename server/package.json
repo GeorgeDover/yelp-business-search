@@ -1,8 +1,8 @@
 {
-  "name": "yelp-business-search",
+  "name": "yelp-business-search-server",
   "version": "1.0.0",
   "author": "George Dover",
-  "description": "A fullstack application displaying Yelp business search results.",
+  "description": "A server to host results from Yelp Business Search API",
   "type": "module",
   "main": "index.js",
   "scripts": {
