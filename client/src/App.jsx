@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, Typography } from '@mui/material';
+import { Link, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TableSortLabel, Typography } from '@mui/material';
 
 function BusinessList() {
   const businesses = [
@@ -10,6 +10,8 @@ function BusinessList() {
 
   const [orderBy, setOrderBy] = useState('distance');
   const [order, setOrder] = useState('desc');
+  const [page, setPage] = useState(0);
+  const rowsPerPage = 12; // Number of rows that fit neatly on 1728x882 screen
 
   const handleRequestSort = (property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -31,6 +33,7 @@ function BusinessList() {
   };
 
   const sortedRows = [...businesses].sort(sortComparator);
+  const paginatedRows = sortedRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   useEffect(() => {
       fetch('http://localhost:3000/')
@@ -70,7 +73,7 @@ function BusinessList() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {sortedRows.map((business, index) => (
+            {paginatedRows.map((business, index) => (
               <TableRow key={index}>
                 <TableCell>
                   <Link href={business.url} target="_blank" rel="noopener noreferrer" underline="hover" variant="body1">{business.name}</Link>
@@ -82,6 +85,14 @@ function BusinessList() {
             ))}
           </TableBody>
         </Table>
+        <TablePagination
+          component="div"
+          count={businesses.length}
+          page={page}
+          onPageChange={handleChangePage}
+          rowsPerPage={rowsPerPage}
+          rowsPerPageOptions={[12]}
+        />
       </TableContainer>
     </>
   );
