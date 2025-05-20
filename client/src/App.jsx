@@ -1,12 +1,36 @@
-import { useEffect } from 'react'
-import { Paper, Link, Table, TableBody, TableCell, TableContainer, TableRow, Typography } from '@mui/material';
+import { useEffect, useState } from 'react'
+import { Link, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, Typography } from '@mui/material';
 
 function BusinessList() {
   const businesses = [
-    { name: 'Boba Guys', url: "", address: '122 Albright Wy, Los Gatos, CA 95032', distance: '100m', rating: 4.5 },
-    { name: 'Tea & Boba', url: "", address: '126 Albright Wy, Los Gatos, CA 95032', distance: '500m', rating: 4.0 },
-    { name: 'Boba Bliss', url: "", address: '283 Albright Wy, Los Gatos, CA 95032', distance: '2000m', rating: 4.8 },
+    { name: 'Boba Guys', url: "", address: '122 Albright Wy, Los Gatos, CA 95032', distance: '100', rating: 4.5 },
+    { name: 'Tea & Boba', url: "", address: '126 Albright Wy, Los Gatos, CA 95032', distance: '500', rating: 4.0 },
+    { name: 'Boba Bliss', url: "", address: '283 Albright Wy, Los Gatos, CA 95032', distance: '2000', rating: 4.8 },
   ];
+
+  const [orderBy, setOrderBy] = useState('distance');
+  const [order, setOrder] = useState('desc');
+
+  const handleRequestSort = (property) => {
+    const isAsc = orderBy === property && order === 'asc';
+    setOrder(isAsc ? 'desc' : 'asc');
+    setOrderBy(property);
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const sortComparator = (a, b) => {
+    if (orderBy === 'distance' || orderBy === 'rating') {
+      return order === 'asc'
+        ? a[orderBy] - b[orderBy]
+        : b[orderBy] - a[orderBy];
+    }
+    return 0;
+  };
+
+  const sortedRows = [...businesses].sort(sortComparator);
 
   useEffect(() => {
       fetch('http://localhost:3000/')
@@ -21,14 +45,38 @@ function BusinessList() {
       </Typography>
       <TableContainer component={Paper} sx={{ maxWidth: 1000, margin: '0 auto' }}>
         <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell><strong>Name</strong></TableCell>
+              <TableCell><strong>Address</strong></TableCell>
+              <TableCell sortDirection={orderBy === 'distance' ? order : false}>
+                <TableSortLabel
+                  active={orderBy === 'distance'}
+                  direction={orderBy === 'distance' ? order : 'asc'}
+                  onClick={() => handleRequestSort('distance')}
+                >
+                  Distance (m)
+                </TableSortLabel>
+              </TableCell>
+              <TableCell sortDirection={orderBy === 'rating' ? order : false}>
+                <TableSortLabel
+                  active={orderBy === 'rating'}
+                  direction={orderBy === 'rating' ? order : 'asc'}
+                  onClick={() => handleRequestSort('rating')}
+                >
+                  Rating
+                </TableSortLabel>
+              </TableCell>
+            </TableRow>
+          </TableHead>
           <TableBody>
-            {businesses.map((business, index) => (
+            {sortedRows.map((business, index) => (
               <TableRow key={index}>
                 <TableCell>
                   <Link href={business.url} target="_blank" rel="noopener noreferrer" underline="hover" variant="body1">{business.name}</Link>
                 </TableCell>
                 <TableCell>{business.address}</TableCell>
-                <TableCell>{business.distance}</TableCell>
+                <TableCell>{business.distance}m</TableCell>
                 <TableCell>⭐ {business.rating}</TableCell>
               </TableRow>
             ))}
