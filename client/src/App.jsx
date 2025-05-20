@@ -1,7 +1,13 @@
-import { Box, Typography } from '@mui/material'
 import { useEffect } from 'react'
+import { Paper, Link, Table, TableBody, TableCell, TableContainer, TableRow, Typography } from '@mui/material';
 
-function App() {
+function BusinessList() {
+  const businesses = [
+    { name: 'Boba Guys', url: "", address: '122 Albright Wy, Los Gatos, CA 95032', distance: '100m', rating: 4.5 },
+    { name: 'Tea & Boba', url: "", address: '126 Albright Wy, Los Gatos, CA 95032', distance: '500m', rating: 4.0 },
+    { name: 'Boba Bliss', url: "", address: '283 Albright Wy, Los Gatos, CA 95032', distance: '2000m', rating: 4.8 },
+  ];
+
   useEffect(() => {
       fetch('http://localhost:3000/')
       .then(res => res.text())
@@ -9,12 +15,28 @@ function App() {
   }, []);
 
   return (
-    <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' , bgcolor: 'background.default'}}>
-      <Typography variant="h1" color="primary">
-        Break time? Here's some boba options to sample!
+    <>
+      <Typography variant="h3" sx={{ textAlign: 'center', marginTop: 4, marginBottom: 4, fontWeight: 'bold', color: 'primary.main' }}>
+        Break time? Here's some boba places to try!
       </Typography>
-    </Box>
-  )
+      <TableContainer component={Paper} sx={{ maxWidth: 1000, margin: '0 auto' }}>
+        <Table>
+          <TableBody>
+            {businesses.map((business, index) => (
+              <TableRow key={index}>
+                <TableCell>
+                  <Link href={business.url} target="_blank" rel="noopener noreferrer" underline="hover" variant="body1">{business.name}</Link>
+                </TableCell>
+                <TableCell>{business.address}</TableCell>
+                <TableCell>{business.distance}</TableCell>
+                <TableCell>⭐ {business.rating}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </>
+  );
 }
 
-export default App
+export default BusinessList
