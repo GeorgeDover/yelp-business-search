@@ -21,7 +21,7 @@ function BusinessList() {
   ];
 
   const [orderBy, setOrderBy] = useState('distance');
-  const [order, setOrder] = useState('desc');
+  const [order, setOrder] = useState('asc');
   const [page, setPage] = useState(0);
   const rowsPerPage = 10; // Number of rows that fit neatly on 1728x882 screen
 
