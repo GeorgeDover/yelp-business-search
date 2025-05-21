@@ -20,47 +20,22 @@ import {
 } from "@mui/material";
 
 function BusinessList() {
-  const sampleData = {
-    total: 3,
-    businesses: [
-      {
-        name: "Boba Guys",
-        url: "",
-        distanceMeters: "100",
-        distanceMiles: "0.06",
-        rating: 4.5,
-      },
-      {
-        name: "Tea & Boba",
-        url: "",
-        distanceMeters: "500",
-        distanceMiles: "0.31",
-        rating: 4.0,
-      },
-      {
-        name: "Boba Bliss",
-        url: "",
-        distanceMeters: "2000",
-        distanceMiles: "1.24",
-        rating: 4.8,
-      },
-    ],
-  };
-
   // Data state variables
   const [location, setLocation] = useState(
     "121 Albright Wy, Los Gatos, CA 95032"
   );
-  const [businesses, setBusinesses] = useState(sampleData.businesses);
+  const [businesses, setBusinesses] = useState([]);
   // TODO: once mechanism for batch requesting more data is implemented, total should be used instead of businesses.length
-  // const [total, setTotal] = useState(sampleData.total);
+  const [total, setTotal] = useState(0);
 
-  const fetchBusinesses = async () => {
+  const fetchBusinesses = async (offset = 0) => {
     // TODO: add loading state
     try {
       const response = await fetch(
         "http://localhost:3000/api/yelp?location=" +
-          encodeURIComponent(location)
+          encodeURIComponent(location) +
+          "&offset=" +
+          encodeURIComponent(offset)
       );
       const data = await response.json();
 
@@ -76,7 +51,14 @@ function BusinessList() {
         })),
       };
 
-      setBusinesses(simplifiedData.businesses);
+      // If we're fetching from offset 0, it's a new search; otherwise, append results
+      if (offset === 0) {
+        setBusinesses(simplifiedData.businesses);
+      } else {
+        setBusinesses((prev) => [...prev, ...simplifiedData.businesses]);
+      }
+
+      setTotal(simplifiedData.total);
     } catch (err) {
       console.error("Failed to fetch businesses:", err);
       // TODO: handle error state more gracefully and log details
@@ -96,10 +78,6 @@ function BusinessList() {
     setOrderBy(property);
   };
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
   const sortComparator = (a, b) => {
     if (orderBy === "distanceMeters" || orderBy === "rating") {
       return order === "asc"
@@ -114,6 +92,27 @@ function BusinessList() {
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
+
+  const handlePageChange = async (event, newPage) => {
+    const offset = newPage * rowsPerPage;
+
+    // If the new page goes beyond current results and there are more results available, fetch more
+    if (offset >= businesses.length && businesses.length < total) {
+      await fetchBusinesses(offset);
+    }
+    setPage(newPage);
+  };
+
+  const handleLocationChange = (e) => {
+    const newLocation = e.target.value;
+    setLocation(newLocation);
+  };
+
+  const handleButtonPress = () => {
+    setPage(0);
+    setBusinesses([]); // Clear old results
+    fetchBusinesses(0);
+  };
 
   return (
     <>
@@ -143,7 +142,7 @@ function BusinessList() {
             labelId="location-label"
             value={location}
             label="Select Location"
-            onChange={(e) => setLocation(e.target.value)}
+            onChange={handleLocationChange}
           >
             <MenuItem value="121 Albright Wy, Los Gatos, CA 95032">
               121 Albright Wy, Los Gatos, CA 95032
@@ -156,7 +155,7 @@ function BusinessList() {
             </MenuItem>
           </Select>
         </FormControl>
-        <Button variant="contained" onClick={fetchBusinesses}>
+        <Button variant="contained" onClick={handleButtonPress}>
           Search
         </Button>
       </Box>
@@ -216,9 +215,9 @@ function BusinessList() {
         </Table>
         <TablePagination
           component="div"
-          count={businesses.length}
+          count={total}
           page={page}
-          onPageChange={handleChangePage}
+          onPageChange={handlePageChange}
           rowsPerPage={rowsPerPage}
           rowsPerPageOptions={[10]}
         />
