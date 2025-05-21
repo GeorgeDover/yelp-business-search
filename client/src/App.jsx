@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { Box, Button, Link, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TableSortLabel, Typography } from '@mui/material';
+import { useState } from 'react'
+import { Box, Button, FormControl, InputLabel, Link, MenuItem, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TableSortLabel, Typography, Select } from '@mui/material';
 
 function BusinessList() {
   const sampleData = {
@@ -76,7 +76,20 @@ function BusinessList() {
       <Typography variant="h3" sx={{ textAlign: 'center', marginTop: 4, marginBottom: 2, fontWeight: 'bold', color: 'primary.main' }}>
         Break time? Here's some boba places to try!
       </Typography>
-      <Box sx={{ display: 'flex', justifyContent: 'center', marginBottom: 2 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, marginBottom: 2 }}>
+        <FormControl sx={{ minWidth: 300 }}>
+          <InputLabel id="location-label">Select Location</InputLabel>
+          <Select
+            labelId="location-label"
+            value={location}
+            label="Select Location"
+            onChange={(e) => setLocation(e.target.value)}
+          >
+            <MenuItem value="121 Albright Wy, Los Gatos, CA 95032">121 Albright Wy, Los Gatos, CA 95032</MenuItem>
+            <MenuItem value="888 Broadway, New York, NY 10003">888 Broadway, New York, NY 10003</MenuItem>
+            <MenuItem value="5808 Sunset Blvd, Los Angeles, CA 90028">5808 Sunset Blvd, Los Angeles, CA 90028</MenuItem>
+          </Select>
+        </FormControl>
         <Button variant="contained" onClick={fetchBusinesses}>
           Search
         </Button>
