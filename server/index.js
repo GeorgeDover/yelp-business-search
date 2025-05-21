@@ -25,6 +25,8 @@ app.get("/api/yelp", async (req, res) => {
         params: {
           // TODO: find an appropriate limit/offset to batch request gathering data from API when payload becomes too large
           location: req.query.location, // required
+          offset: req.query.offset || 0, // pagination controlled
+          limit: 50, // max 50 to limit API calls at expense of performance
           categories: "bubbletea",
           sort_by: "distance",
         },
