@@ -2,46 +2,44 @@ import { useEffect, useState } from 'react'
 import { Box, Button, Link, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TableSortLabel, Typography } from '@mui/material';
 
 function BusinessList() {
-  const sampleBusinesses = [
-    { name: 'Boba Guys', url: "", address: '122 Albright Wy, Los Gatos, CA 95032', distance: '100', rating: 4.5 },
-    { name: 'Tea & Boba', url: "", address: '126 Albright Wy, Los Gatos, CA 95032', distance: '500', rating: 4.0 },
-    { name: 'Boba Bliss', url: "", address: '283 Albright Wy, Los Gatos, CA 95032', distance: '2000', rating: 4.8 },
-    { name: 'Boba Guys', url: "", address: '122 Albright Wy, Los Gatos, CA 95032', distance: '100', rating: 4.5 },
-    { name: 'Tea & Boba', url: "", address: '126 Albright Wy, Los Gatos, CA 95032', distance: '500', rating: 4.0 },
-    { name: 'Boba Bliss', url: "", address: '283 Albright Wy, Los Gatos, CA 95032', distance: '2000', rating: 4.8 },
-    { name: 'Boba Guys', url: "", address: '122 Albright Wy, Los Gatos, CA 95032', distance: '100', rating: 4.5 },
-    { name: 'Tea & Boba', url: "", address: '126 Albright Wy, Los Gatos, CA 95032', distance: '500', rating: 4.0 },
-    { name: 'Boba Bliss', url: "", address: '283 Albright Wy, Los Gatos, CA 95032', distance: '2000', rating: 4.8 },
-    { name: 'Boba Guys', url: "", address: '122 Albright Wy, Los Gatos, CA 95032', distance: '100', rating: 4.5 },
-    { name: 'Tea & Boba', url: "", address: '126 Albright Wy, Los Gatos, CA 95032', distance: '500', rating: 4.0 },
-    { name: 'Boba Bliss', url: "", address: '283 Albright Wy, Los Gatos, CA 95032', distance: '2000', rating: 4.8 },
-    { name: 'Boba Guys', url: "", address: '122 Albright Wy, Los Gatos, CA 95032', distance: '100', rating: 4.5 },
-    { name: 'Tea & Boba', url: "", address: '126 Albright Wy, Los Gatos, CA 95032', distance: '500', rating: 4.0 },
-    { name: 'Boba Bliss', url: "", address: '283 Albright Wy, Los Gatos, CA 95032', distance: '2000', rating: 4.8 },
-  ];
+  const sampleData = {
+    total: 3,
+    businesses: [
+      { name: 'Boba Guys', url: "", distanceMeters: '100', distanceMiles: '0.06', rating: 4.5 },
+      { name: 'Tea & Boba', url: "", distanceMeters: '500', distanceMiles: '0.31', rating: 4.0 },
+      { name: 'Boba Bliss', url: "", distanceMeters: '2000', distanceMiles: '1.24', rating: 4.8 },
+    ]
+  };
 
   // Data state variables
   const [location, setLocation] = useState('121 Albright Wy, Los Gatos, CA 95032');
-  const [offset, setOffset] = useState(0);
-  const [businesses, setBusinesses] = useState(sampleBusinesses);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [businesses, setBusinesses] = useState(sampleData.businesses);
+  const [total, setTotal] = useState(sampleData.total);
 
   const fetchBusinesses = async () => {
-    setLoading(true);
+    // TODO: add loading state
     try {
-      const response = await fetch('http://localhost:3000/api/yelp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ location, offset }),
-      });
+      const response = await fetch('http://localhost:3000/api/yelp?location=' + encodeURIComponent(location));
       const data = await response.json();
-      setBusinesses(data);
+
+      // Destructure and filter only needed info
+      const simplifiedData = {
+        total: data.total,
+        businesses: data.businesses.map(business => ({
+          name: business.name,
+          url: business.url,
+          distanceMeters: (business.distance).toFixed(0),
+          distanceMiles: (business.distance * 0.000621371).toFixed(2),
+          rating: (business.rating).toFixed(1),
+        }))
+      };
+
+      setBusinesses(simplifiedData.businesses);
+      setTotal(simplifiedData.total);
     } catch (err) {
-      setError(err);
       console.error('Failed to fetch businesses:', err);
+      // TODO: handle error state more gracefully and log details
     }
-    setLoading(false);
   };
 
   // UI state variables
@@ -49,6 +47,7 @@ function BusinessList() {
   const [order, setOrder] = useState('asc');
   const [page, setPage] = useState(0);
   const rowsPerPage = 10; // Number of rows that fit neatly on 1728x882 screen
+  // TODO: make this responsive to screen size
 
   const handleRequestSort = (property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -61,7 +60,7 @@ function BusinessList() {
   };
 
   const sortComparator = (a, b) => {
-    if (orderBy === 'distance' || orderBy === 'rating') {
+    if (orderBy === 'distanceMeters' || orderBy === 'rating') {
       return order === 'asc'
         ? a[orderBy] - b[orderBy]
         : b[orderBy] - a[orderBy];
@@ -71,12 +70,6 @@ function BusinessList() {
 
   const sortedRows = [...businesses].sort(sortComparator);
   const paginatedRows = sortedRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-
-  useEffect(() => {
-      fetch('http://localhost:3000/')
-      .then(res => res.text())
-      .then(data => console.log(data));
-  }, []);
 
   return (
     <>
@@ -93,14 +86,13 @@ function BusinessList() {
           <TableHead>
             <TableRow>
               <TableCell><strong>Name</strong></TableCell>
-              <TableCell><strong>Address</strong></TableCell>
-              <TableCell sortDirection={orderBy === 'distance' ? order : false}>
+              <TableCell sortDirection={orderBy === 'distanceMeters' ? order : false}>
                 <TableSortLabel
-                  active={orderBy === 'distance'}
-                  direction={orderBy === 'distance' ? order : 'asc'}
-                  onClick={() => handleRequestSort('distance')}
+                  active={orderBy === 'distanceMeters'}
+                  direction={orderBy === 'distanceMeters' ? order : 'asc'}
+                  onClick={() => handleRequestSort('distanceMeters')}
                 >
-                  Distance (m)
+                  Distance
                 </TableSortLabel>
               </TableCell>
               <TableCell sortDirection={orderBy === 'rating' ? order : false}>
@@ -120,8 +112,7 @@ function BusinessList() {
                 <TableCell>
                   <Link href={business.url} target="_blank" rel="noopener noreferrer" underline="hover" variant="body1">{business.name}</Link>
                 </TableCell>
-                <TableCell>{business.address}</TableCell>
-                <TableCell>{business.distance}m</TableCell>
+                <TableCell>{business.distanceMiles}mi / {business.distanceMeters}m</TableCell>
                 <TableCell>⭐ {business.rating}</TableCell>
               </TableRow>
             ))}
@@ -129,7 +120,7 @@ function BusinessList() {
         </Table>
         <TablePagination
           component="div"
-          count={businesses.length}
+          count={total}
           page={page}
           onPageChange={handleChangePage}
           rowsPerPage={rowsPerPage}

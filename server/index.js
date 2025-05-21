@@ -21,10 +21,9 @@ app.get('/api/yelp', async (req, res) => {
         Authorization: `Bearer ${process.env.YELP_API_KEY}`,
       },
       params: {
-        location: req.query.location || '121 Albright Wy, Los Gatos, CA 95032',
+        // TODO: find an appropriate limit/offset to batch request gathering data from API when payload becomes too large
+        location: req.query.location, // required
         categories: 'bubbletea',
-        limit: 10,
-        offset: req.query.offset || 0,
         sort_by: 'distance',
       },
     });
