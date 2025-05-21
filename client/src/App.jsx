@@ -14,6 +14,7 @@ function BusinessList() {
   // Data state variables
   const [location, setLocation] = useState('121 Albright Wy, Los Gatos, CA 95032');
   const [businesses, setBusinesses] = useState(sampleData.businesses);
+  // TODO: once mechanism for batch requesting more data is implemented, total should be used instead of businesses.length
   const [total, setTotal] = useState(sampleData.total);
 
   const fetchBusinesses = async () => {
@@ -22,7 +23,7 @@ function BusinessList() {
       const response = await fetch('http://localhost:3000/api/yelp?location=' + encodeURIComponent(location));
       const data = await response.json();
 
-      // Destructure and filter only needed info
+      // Extract only needed info
       const simplifiedData = {
         total: data.total,
         businesses: data.businesses.map(business => ({
@@ -133,7 +134,7 @@ function BusinessList() {
         </Table>
         <TablePagination
           component="div"
-          count={total}
+          count={businesses.length}
           page={page}
           onPageChange={handleChangePage}
           rowsPerPage={rowsPerPage}
