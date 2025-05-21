@@ -53,7 +53,7 @@ function BusinessList() {
   );
   const [businesses, setBusinesses] = useState(sampleData.businesses);
   // TODO: once mechanism for batch requesting more data is implemented, total should be used instead of businesses.length
-  const [total, setTotal] = useState(sampleData.total);
+  // const [total, setTotal] = useState(sampleData.total);
 
   const fetchBusinesses = async () => {
     // TODO: add loading state
@@ -77,7 +77,6 @@ function BusinessList() {
       };
 
       setBusinesses(simplifiedData.businesses);
-      setTotal(simplifiedData.total);
     } catch (err) {
       console.error("Failed to fetch businesses:", err);
       // TODO: handle error state more gracefully and log details
