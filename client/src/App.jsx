@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Link, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TableSortLabel, Typography } from '@mui/material';
+import { Box, Button, Link, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TableSortLabel, Typography } from '@mui/material';
 
 function BusinessList() {
-  const businesses = [
+  const sampleBusinesses = [
     { name: 'Boba Guys', url: "", address: '122 Albright Wy, Los Gatos, CA 95032', distance: '100', rating: 4.5 },
     { name: 'Tea & Boba', url: "", address: '126 Albright Wy, Los Gatos, CA 95032', distance: '500', rating: 4.0 },
     { name: 'Boba Bliss', url: "", address: '283 Albright Wy, Los Gatos, CA 95032', distance: '2000', rating: 4.8 },
@@ -20,6 +20,31 @@ function BusinessList() {
     { name: 'Boba Bliss', url: "", address: '283 Albright Wy, Los Gatos, CA 95032', distance: '2000', rating: 4.8 },
   ];
 
+  // Data state variables
+  const [location, setLocation] = useState('121 Albright Wy, Los Gatos, CA 95032');
+  const [offset, setOffset] = useState(0);
+  const [businesses, setBusinesses] = useState(sampleBusinesses);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchBusinesses = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('http://localhost:3000/api/yelp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ location, offset }),
+      });
+      const data = await response.json();
+      setBusinesses(data);
+    } catch (err) {
+      setError(err);
+      console.error('Failed to fetch businesses:', err);
+    }
+    setLoading(false);
+  };
+
+  // UI state variables
   const [orderBy, setOrderBy] = useState('distance');
   const [order, setOrder] = useState('asc');
   const [page, setPage] = useState(0);
@@ -55,9 +80,14 @@ function BusinessList() {
 
   return (
     <>
-      <Typography variant="h3" sx={{ textAlign: 'center', marginTop: 4, marginBottom: 4, fontWeight: 'bold', color: 'primary.main' }}>
+      <Typography variant="h3" sx={{ textAlign: 'center', marginTop: 4, marginBottom: 2, fontWeight: 'bold', color: 'primary.main' }}>
         Break time? Here's some boba places to try!
       </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'center', marginBottom: 2 }}>
+        <Button variant="contained" onClick={fetchBusinesses}>
+          Search
+        </Button>
+      </Box>
       <TableContainer component={Paper} sx={{ maxWidth: 1000, margin: '0 auto' }}>
         <Table>
           <TableHead>
